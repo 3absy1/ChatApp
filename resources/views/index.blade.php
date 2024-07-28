@@ -25,17 +25,9 @@
   <div class="top">
 {{--    <img src="/IMG_20220916_140627.jpg" alt="avatar" >--}}
     <div>
-      <p>{{ Auth::user()->name }}</p>
+      <p>{{ $userName }}</p>
       <small>Online</small>
-      <form method="POST" action="{{ route('logout') }}">
-        @csrf
 
-        <x-dropdown-link :href="route('logout')"
-                onclick="event.preventDefault();
-                            this.closest('form').submit();">
-            {{ __('Log Out') }}
-        </x-dropdown-link>
-    </form>
     </div>
   </div>
   <!-- End Header -->

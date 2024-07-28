@@ -15,15 +15,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/',[PusherController::class, 'dashboard'] )->name('dashboard');
+    Route::get('/dashboard',[PusherController::class, 'dashboard'] )->name('dashboard');
     Route::get('/chat/{user_id}',[PusherController::class, 'index'] );
     Route::post('/chat/{user_id}',[PusherController::class, 'sendMessage'] );
     Route::post('/broadcast',[PusherController::class, 'broadcast'] );

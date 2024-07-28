@@ -20,7 +20,17 @@ class PusherController extends Controller
 
         $allMessages = $sendMessages->merge($ReceivedMessages)->sortBy('created_at');
 
-        return view('index', compact('allMessages', 'user_id'));
+        $userName=User::where('id',$user_id)->first()->name;
+        return view('index', compact('allMessages', 'user_id','userName'));
+    }
+
+    public function dashboard()
+    {
+        $authUserId = auth()->id();
+        $users = User::where('id', '!=', $authUserId)->get();
+        return view('dashboard', [
+            'users' => $users
+        ]);
     }
 
     // public function broadcast(Request $request)
