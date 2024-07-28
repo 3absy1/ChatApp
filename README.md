@@ -1,3 +1,9 @@
+
+![Screenshot 2024-07-28 103703](https://github.com/user-attachments/assets/96e8466c-d124-4765-ab36-a5dca5877386)
+
+![Screenshot 2024-07-28 103638](https://github.com/user-attachments/assets/3d950d78-b09a-4a3d-bba1-7e9909f84fd7)
+![Screenshot 2024-07-28 103736](https://github.com/user-attachments/assets/c8754e48-8078-4ee4-ab36-32f7ab85c185)
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
