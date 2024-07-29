@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard',[PusherController::class, 'dashboard'] )->name('dashboard');
     Route::get('/chat/{user_id}',[PusherController::class, 'index'] );
     Route::post('/chat/{user_id}',[PusherController::class, 'sendMessage'] );
+    Route::post('/typing', [PusherController::class, 'typing'])->name('typing');
     Route::post('/broadcast',[PusherController::class, 'broadcast'] );
     Route::post('/receive',[PusherController::class, 'receive'] )->name('receiveMessage');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
