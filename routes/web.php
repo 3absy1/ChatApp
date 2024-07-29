@@ -25,10 +25,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/',[PusherController::class, 'dashboard'] )->name('dashboard');
     Route::get('/dashboard',[PusherController::class, 'dashboard'] )->name('dashboard');
     Route::get('/chat/{user_id}',[PusherController::class, 'index'] );
-    Route::post('/chat/{user_id}',[PusherController::class, 'sendMessage'] );
+    Route::post('/chat/{user_id}',[PusherController::class, 'sendMessage'])->name('sendMessage');
     Route::post('/typing', [PusherController::class, 'typing'])->name('typing');
     Route::post('/broadcast',[PusherController::class, 'broadcast'] );
     Route::post('/receive',[PusherController::class, 'receive'] )->name('receiveMessage');
+
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

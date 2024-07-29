@@ -38,7 +38,9 @@ class PusherController extends Controller
 
     public function receive(Request $request)
     {
-        return view('receive', ['message' => $request->get('message')]);
+        // return view('receive', ['message' => $request->get('message')]);
+        return view('receive', ['message' => $request->get('message'),'attachment'=> $request->get('attachment')]);
+
     }
 
     public function sendMessage($user_id, Request $request)
@@ -47,12 +49,18 @@ class PusherController extends Controller
         $data['receiver'] = $user_id;
         $data['message'] = $request->message;
 
-        Message::create($data);
-        $receiver = User::find($user_id);
-        $message = $request->message;
-        \broadcast(new PusherBroadcast($receiver, $message));
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            $path = $attachment->store('attachments', 'public');
+            $data['attachment'] = $path;
+        }
 
-        return view('broadcast', ['message' => $request->get('message')]);
+        $message = Message::create($data);
+        $receiver = User::find($user_id);
+
+        \broadcast(new PusherBroadcast($receiver, $message->message, $message->attachment));
+
+        return view('broadcast', ['message' => $message->message, 'attachment' => $message->attachment]);
     }
 
     public function typing(Request $request)

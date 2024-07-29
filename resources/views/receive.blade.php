@@ -1,4 +1,9 @@
 <div class="left message">
-{{--  <img src="\IMG_20230308_144213.jpg" alt="Avatar">--}}
-  <p>{{$message}}</p>
+    @if(isset($attachment) && $attachment)
+    {{-- <a href="{{ Storage::url($attachment) }}"alt="Attachment" >View</a> --}}
+        <a href="{{ Storage::url($attachment) }}"><img src="{{ Storage::url($attachment) }}" alt="Attachment"></a>
+
+    @endif
+    <br>
+    <p>{{$message}}</p>
 </div>
