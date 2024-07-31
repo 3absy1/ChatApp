@@ -15,6 +15,29 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="/style.css">
+    <style>
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-wrapper svg {
+            fill: currentColor;
+            width: 32px;
+            height: 32px;
+        }
+    </style>
     <!-- End CSS -->
 </head>
 
@@ -65,7 +88,12 @@
         <div class="bottom">
             <form>
                 <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
-                <input type="file" name="attachment">
+                <div class="file-input-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                        <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                    </svg>
+                    <input type="file" id="file-input" name="attachment">
+                </div>
                 <button type="submit"></button>
             </form>
         </div>
@@ -82,22 +110,37 @@
 
     var chatChannel = pusher.subscribe('chat{{ Auth::user()->id }}');
 
-    // Typing event
-    $('#message').on('keypress', function() {
-        $.post("{{ route('typing') }}", {
-            _token: '{{ csrf_token() }}',
-            user_id: '{{ $user_id }}'
-        });
-    });
-
-    chatChannel.bind('user.typing', function(data) {
-        if (data.userId !== '{{ Auth::user()->id }}') {
-            $('.typing-indicator').show();
-            setTimeout(function() {
-                $('.typing-indicator').hide();
-            }, 3000);
+ // Debounce function
+ function debounce(func, delay) {
+            let timeoutId;
+            return function(...args) {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
         }
-    });
+
+        // Typing event with debounce
+        const sendTypingEvent = debounce(function() {
+            $.post("{{ route('typing') }}", {
+                _token: '{{ csrf_token() }}',
+                user_id: '{{ $user_id }}'
+            });
+        }, 1000); // Adjust the delay as needed
+
+        $('#message').on('input', sendTypingEvent);
+
+        chatChannel.bind('user.typing', function(data) {
+            if (data.userId !== '{{ Auth::user()->id }}') {
+                $('.typing-indicator').show();
+                setTimeout(function() {
+                    $('.typing-indicator').hide();
+                }, 3000);
+            }
+        });
 
     $("form").submit(function(event) {
         event.preventDefault();
