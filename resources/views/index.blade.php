@@ -71,13 +71,19 @@
             ])
 
             @if (empty($sendMessages))
-            @foreach ($allMessages as $message)
-                @if ($message->sender == Auth::user()->id)
-                    @include('broadcast', ['message' => $message->message, 'attachment' => $message->attachment])
-                @else
-                    @include('receive', ['message' => $message->message, 'attachment' => $message->attachment])
-                @endif
-            @endforeach
+                @foreach ($allMessages as $message)
+                    @if ($message->sender == Auth::user()->id)
+                        @include('broadcast', [
+                            'message' => $message->message,
+                            'attachment' => $message->attachment,
+                        ])
+                    @else
+                        @include('receive', [
+                            'message' => $message->message,
+                            'attachment' => $message->attachment,
+                        ])
+                    @endif
+                @endforeach
             @endif
         </div>
         <!-- End Chat -->
@@ -86,11 +92,18 @@
 
         <!-- Footer -->
         <div class="bottom">
+            <div id="image-preview-container" style="position: relative; display: none; margin-top: 10px;">
+                <img id="image-preview" src="#" alt="Image Preview" style="max-width:80%; height: 100px;">
+                <button id="delete-image"
+                    style="position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;">X</button>
+            </div>
             <form>
                 <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
                 <div class="file-input-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
-                        <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip"
+                        viewBox="0 0 16 16">
+                        <path
+                            d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z" />
                     </svg>
                     <input type="file" id="file-input" name="attachment">
                 </div>
@@ -110,37 +123,37 @@
 
     var chatChannel = pusher.subscribe('chat{{ Auth::user()->id }}');
 
- // Debounce function
- function debounce(func, delay) {
-            let timeoutId;
-            return function(...args) {
-                if (timeoutId) {
-                    clearTimeout(timeoutId);
-                }
-                timeoutId = setTimeout(() => {
-                    func.apply(this, args);
-                }, delay);
-            };
-        }
-
-        // Typing event with debounce
-        const sendTypingEvent = debounce(function() {
-            $.post("{{ route('typing') }}", {
-                _token: '{{ csrf_token() }}',
-                user_id: '{{ $user_id }}'
-            });
-        }, 1000); // Adjust the delay as needed
-
-        $('#message').on('input', sendTypingEvent);
-
-        chatChannel.bind('user.typing', function(data) {
-            if (data.userId !== '{{ Auth::user()->id }}') {
-                $('.typing-indicator').show();
-                setTimeout(function() {
-                    $('.typing-indicator').hide();
-                }, 3000);
+    // Debounce function
+    function debounce(func, delay) {
+        let timeoutId;
+        return function(...args) {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
             }
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    }
+
+    // Typing event with debounce
+    const sendTypingEvent = debounce(function() {
+        $.post("{{ route('typing') }}", {
+            _token: '{{ csrf_token() }}',
+            user_id: '{{ $user_id }}'
         });
+    }, 1000); // Adjust the delay as needed
+
+    $('#message').on('input', sendTypingEvent);
+
+    chatChannel.bind('user.typing', function(data) {
+        if (data.userId !== '{{ Auth::user()->id }}') {
+            $('.typing-indicator').show();
+            setTimeout(function() {
+                $('.typing-indicator').hide();
+            }, 3000);
+        }
+    });
 
     $("form").submit(function(event) {
         event.preventDefault();
@@ -162,6 +175,18 @@
                 $(".messages > .message").last().after(res);
                 $("form #message").val('');
                 $("form input[type='file']").val('');
+
+                // Hide the image preview and clear the file input
+                var img = document.getElementById('image-preview');
+                img.src = '#';
+
+                var previewContainer = document.getElementById('image-preview-container');
+                previewContainer.style.display = 'none';
+
+                // Optionally clear the file input
+                var fileInput = document.getElementById('file-input');
+                fileInput.value = '';
+
                 $(document).scrollTop($(document).height());
             }
         });
@@ -181,6 +206,61 @@
 
     let divElement = document.getElementById('chat');
     divElement.scrollTop = divElement.scrollHeight;
+
+
+document.getElementById('file-input').addEventListener('change', function(event) {
+    var input = event.target;
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        var reader = new FileReader();
+
+        if (file.type.startsWith('image/')) {
+            reader.onload = function(e) {
+                var img = document.getElementById('image-preview');
+
+                img.src = e.target.result;
+
+                var previewContainer = document.getElementById('image-preview-container');
+                previewContainer.style.display = 'block';
+
+                // Scroll to the bottom of the chat div
+                let divElement = document.getElementById('chat');
+                divElement.scrollTop = divElement.scrollHeight;
+            }
+            reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+            var fileName = file.name;
+            var previewContainer = document.getElementById('image-preview-container');
+            previewContainer.style.display = 'block';
+
+            var img = document.getElementById('image-preview');
+            img.style.display = 'none';
+
+            var pdfLink = document.createElement('a');
+            pdfLink.href = URL.createObjectURL(file);
+            pdfLink.target = '_blank';
+            pdfLink.textContent = fileName;
+
+            previewContainer.innerHTML = ''; // Clear previous content
+            previewContainer.appendChild(pdfLink);
+            previewContainer.appendChild(document.getElementById('delete-image'));
+        } else {
+            // Handle other file types if needed
+        }
+    }
+});
+
+    document.getElementById('delete-image').addEventListener('click', function() {
+        var img = document.getElementById('image-preview');
+        img.src = '#';
+
+        var previewContainer = document.getElementById('image-preview-container');
+        previewContainer.style.display = 'none';
+
+        // Optionally, you can also clear the file input
+        var fileInput = document.getElementById('file-input');
+        fileInput.value = '';
+    });
 </script>
 
 </html>

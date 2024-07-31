@@ -18,7 +18,7 @@ class PusherBroadcast implements  ShouldBroadcast
 
     public User $receiver;
 
-    public string $message;
+    public ?string $message;
 
     public $attachment;
 
@@ -55,7 +55,7 @@ class PusherBroadcast implements  ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'message' => $this->message,
+            'message' => $this->message ?? '',
             'attachment' => $this->attachment,
         ];
     }
