@@ -156,41 +156,42 @@
     });
 
     $("form").submit(function(event) {
-        event.preventDefault();
+    event.preventDefault();
 
-        var formData = new FormData(this);
-        formData.append('_token', '{{ csrf_token() }}');
-        formData.append('message', $("form #message").val());
+    var formData = new FormData(this);
+    formData.append('_token', '{{ csrf_token() }}');
+    formData.append('message', $("form #message").val());
 
-        $.ajax({
-            url: "/chat/{{ $user_id }}",
-            method: 'POST',
-            headers: {
-                'X-Socket-Id': pusher.connection.socket_id
-            },
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(res) {
-                $(".messages > .message").last().after(res);
-                $("form #message").val('');
-                $("form input[type='file']").val('');
+    $.ajax({
+        url: "/chat/{{ $user_id }}",
+        method: 'POST',
+        headers: {
+            'X-Socket-Id': pusher.connection.socket_id
+        },
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(res) {
+            $(".messages > .message").last().after(res);
+            $("form #message").val('');
+            $("form input[type='file']").val('');
 
-                // Hide the image preview and clear the file input
-                var img = document.getElementById('image-preview');
-                img.src = '#';
+            // Hide the image preview and clear the file input
+            var img = document.getElementById('image-preview');
+            img.src = '#';
 
-                var previewContainer = document.getElementById('image-preview-container');
-                previewContainer.style.display = 'none';
+            var previewContainer = document.getElementById('image-preview-container');
+            previewContainer.style.display = 'none';
 
-                // Optionally clear the file input
-                var fileInput = document.getElementById('file-input');
-                fileInput.value = '';
+            var fileInput = document.getElementById('file-input');
+            fileInput.value = '';
 
-                $(document).scrollTop($(document).height());
-            }
-        });
+            // Scroll to the bottom of the chat container
+            let chatContainer = document.getElementById('chat');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     });
+});
 
     var channel = pusher.subscribe('chat{{ Auth::user()->id }}');
     channel.bind('chatMessage', function(data) {
@@ -200,7 +201,9 @@
             attachment: data.attachment
         }).done(function(res) {
             $(".messages").append(res);
-            $(document).scrollTop($(document).height());
+            // Scroll to the bottom of the chat container
+            let chatContainer = document.getElementById('chat');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         });
     });
 
