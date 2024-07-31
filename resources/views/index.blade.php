@@ -107,7 +107,9 @@
                     </svg>
                     <input type="file" id="file-input" name="attachment">
                 </div>
-                <button type="submit"></button>
+
+                <button type="submit" id="submit-button" style="display: none;"></button>
+
             </form>
         </div>
 
@@ -189,6 +191,9 @@
             // Scroll to the bottom of the chat container
             let chatContainer = document.getElementById('chat');
             chatContainer.scrollTop = chatContainer.scrollHeight;
+            const submitButton = document.getElementById('submit-button');
+            submitButton.style.display = 'none';
+
         }
     });
 });
@@ -264,6 +269,27 @@ document.getElementById('file-input').addEventListener('change', function(event)
         var fileInput = document.getElementById('file-input');
         fileInput.value = '';
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.getElementById('message');
+    const fileInput = document.getElementById('file-input');
+    const submitButton = document.getElementById('submit-button');
+
+    function toggleSubmitButton() {
+        if (messageInput.value.trim() !== '' || fileInput.files.length > 0) {
+            submitButton.style.display = 'block';
+        } else {
+            submitButton.style.display = 'none';
+        }
+    }
+
+    messageInput.addEventListener('input', toggleSubmitButton);
+    fileInput.addEventListener('change', toggleSubmitButton);
+});
+
+
+
+
 </script>
 
 </html>
